@@ -1,0 +1,530 @@
+// CUREX Database Schema - SQLite compatible
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// USER MANAGEMENT & AUTHENTICATION
+// ============================================================================
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      String   // PATIENT, DOCTOR, NURSE, TRIAGE, ADMIN
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  patient Patient?
+  doctor  Doctor?
+  nurse   Nurse?
+  admin   Admin?
+
+  sessions  Session[]
+  auditLogs AuditLog[]
+  consents  Consent[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  ipAddress String?
+  userAgent String?
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+// ============================================================================
+// HOSPITAL & INFRASTRUCTURE
+// ============================================================================
+
+model Hospital {
+  id        String   @id @default(uuid())
+  name      String
+  type      String   // GENERAL, MULTISPECIALTY, AYUSH, SPECIALTY, CLINIC
+  address   String?
+  city      String?
+  state     String?
+  pincode   String?
+  phone     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctors    Doctor[]
+  nurses     Nurse[]
+  admins     Admin[]
+  kiosks     Kiosk[]
+  encounters Encounter[]
+
+  @@map("hospitals")
+}
+
+model Kiosk {
+  id         String    @id @default(uuid())
+  hospitalId String
+  hospital   Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  name       String
+  location   String
+  deviceId   String    @unique
+  isOnline   Boolean   @default(false)
+  lastPing   DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  encounters Encounter[]
+
+  @@index([hospitalId])
+  @@map("kiosks")
+}
+
+// ============================================================================
+// PATIENT & CLINICAL USERS
+// ============================================================================
+
+model Patient {
+  id          String    @id @default(uuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName   String
+  lastName    String
+  dateOfBirth DateTime?
+  gender      String?   // MALE, FEMALE, OTHER, PREFER_NOT_TO_SAY
+  phone       String?
+  address     String?
+  city        String?
+  state       String?
+  pincode     String?
+  bloodGroup  String?
+  abdmId      String?   @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  medicalHistory MedicalHistory?
+  encounters     Encounter[]
+  documents      Document[]
+  timeline       TimelineEvent[]
+
+  @@map("patients")
+}
+
+model Doctor {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hospitalId     String
+  hospital       Hospital @relation(fields: [hospitalId], references: [id])
+  firstName      String
+  lastName       String
+  qualification  String
+  specialization String
+  licenseNumber  String   @unique
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  encounters Encounter[]
+
+  @@index([hospitalId])
+  @@map("doctors")
+}
+
+model Nurse {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hospitalId   String
+  hospital     Hospital @relation(fields: [hospitalId], references: [id])
+  firstName    String
+  lastName     String
+  designation  String
+  licenseNumber String  @unique
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([hospitalId])
+  @@map("nurses")
+}
+
+model Admin {
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hospitalId String
+  hospital   Hospital @relation(fields: [hospitalId], references: [id])
+  firstName  String
+  lastName   String
+  role       String
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([hospitalId])
+  @@map("admins")
+}
+
+// ============================================================================
+// MEDICAL HISTORY
+// ============================================================================
+
+model MedicalHistory {
+  id        String   @id @default(uuid())
+  patientId String   @unique
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  allergies       Allergy[]
+  diagnoses       Diagnosis[]
+  medications     Medication[]
+  procedures      Procedure[]
+  surgeries       Surgery[]
+  ayushHistory    AyushHistory?
+
+  @@map("medical_histories")
+}
+
+model Allergy {
+  id               String   @id @default(uuid())
+  medicalHistoryId String
+  medicalHistory   MedicalHistory @relation(fields: [medicalHistoryId], references: [id], onDelete: Cascade)
+  allergen         String
+  reaction         String
+  severity         String   // MILD, MODERATE, SEVERE, LIFE_THREATENING
+  diagnosedDate    DateTime?
+  notes            String?
+  createdAt        DateTime @default(now())
+
+  @@index([medicalHistoryId])
+  @@map("allergies")
+}
+
+model Diagnosis {
+  id               String    @id @default(uuid())
+  medicalHistoryId String
+  medicalHistory   MedicalHistory @relation(fields: [medicalHistoryId], references: [id], onDelete: Cascade)
+  condition        String
+  diagnosedDate    DateTime
+  status           String    // ACTIVE, RESOLVED, CHRONIC, IN_REMISSION
+  diagnosedBy      String?
+  notes            String?
+  createdAt        DateTime  @default(now())
+
+  @@index([medicalHistoryId])
+  @@map("diagnoses")
+}
+
+model Medication {
+  id               String    @id @default(uuid())
+  medicalHistoryId String
+  medicalHistory   MedicalHistory @relation(fields: [medicalHistoryId], references: [id], onDelete: Cascade)
+  name             String
+  dosage           String
+  frequency        String
+  startDate        DateTime
+  endDate          DateTime?
+  prescribedBy     String?
+  isActive         Boolean   @default(true)
+  notes            String?
+  createdAt        DateTime  @default(now())
+
+  @@index([medicalHistoryId])
+  @@map("medications")
+}
+
+model Procedure {
+  id               String    @id @default(uuid())
+  medicalHistoryId String
+  medicalHistory   MedicalHistory @relation(fields: [medicalHistoryId], references: [id], onDelete: Cascade)
+  name             String
+  procedureDate    DateTime
+  performedBy      String?
+  location         String?
+  notes            String?
+  createdAt        DateTime  @default(now())
+
+  @@index([medicalHistoryId])
+  @@map("procedures")
+}
+
+model Surgery {
+  id               String    @id @default(uuid())
+  medicalHistoryId String
+  medicalHistory   MedicalHistory @relation(fields: [medicalHistoryId], references: [id], onDelete: Cascade)
+  name             String
+  surgeryDate      DateTime
+  surgeon          String?
+  hospital         String?
+  notes            String?
+  createdAt        DateTime  @default(now())
+
+  @@index([medicalHistoryId])
+  @@map("surgeries")
+}
+
+model AyushHistory {
+  id               String         @id @default(uuid())
+  medicalHistoryId String         @unique
+  medicalHistory   MedicalHistory @relation(fields: [medicalHistoryId], references: [id], onDelete: Cascade)
+  prakriti         String?
+  vikriti          String?
+  sara             String?
+  samhanana        String?
+  pramana          String?
+  satmya           String?
+  sattva           String?
+  aharaShakti      String?
+  vyayamaShakti    String?
+  vaya             String?
+  agni             String?
+  koshtha          String?
+  nidana           String?
+  samprapti        String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@map("ayush_histories")
+}
+
+// ============================================================================
+// CLINICAL ENCOUNTER
+// ============================================================================
+
+model Encounter {
+  id              String    @id @default(uuid())
+  tokenNumber     String
+  patientId       String
+  patient         Patient   @relation(fields: [patientId], references: [id])
+  doctorId        String?
+  doctor          Doctor?   @relation(fields: [doctorId], references: [id])
+  hospitalId      String
+  hospital        Hospital  @relation(fields: [hospitalId], references: [id])
+  kioskId         String?
+  kiosk           Kiosk?    @relation(fields: [kioskId], references: [id])
+  status          String    // INTAKE_STARTED, INTAKE_COMPLETED, IN_QUEUE, WITH_DOCTOR, COMPLETED, CANCELLED
+  priority        String    // LOW, NORMAL, HIGH, URGENT
+  summaryStatus   String    @default("PENDING") // PENDING, AI_DRAFT, UNDER_REVIEW, EDITED, CLINICIAN_VERIFIED, REJECTED
+  language        String    @default("Hindi")
+  inputMode       String    @default("voice") // voice, touch, assisted
+  chiefComplaint  String?
+  presentIllness  String?
+  aiSummary       String?
+  doctorNotes     String?
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  questions  ClinicalQuestion[]
+  redFlags   RedFlag[]
+  documents  Document[]
+  alerts     TriageAlert[]
+
+  @@index([patientId])
+  @@index([doctorId])
+  @@index([hospitalId])
+  @@index([status])
+  @@map("encounters")
+}
+
+model ClinicalQuestion {
+  id          String    @id @default(uuid())
+  encounterId String
+  encounter   Encounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
+  questionId  String?
+  category    String
+  question    String
+  answer      String?
+  answeredAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([encounterId])
+  @@map("clinical_questions")
+}
+
+// ============================================================================
+// DOCUMENTS & OCR
+// ============================================================================
+
+model Document {
+  id          String    @id @default(uuid())
+  patientId   String
+  patient     Patient   @relation(fields: [patientId], references: [id])
+  encounterId String?
+  encounter   Encounter? @relation(fields: [encounterId], references: [id])
+  fileName    String
+  filePath    String
+  fileSize    Int
+  mimeType    String
+  category    String    // PRESCRIPTION, LAB_REPORT, DISCHARGE_SUMMARY, IMAGING_REPORT, SURGERY_RECORD, OTHER
+  ocrStatus   String    @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED, MANUAL_REVIEW
+  ocrText     String?
+  confidence  Float?
+  uploadedAt  DateTime  @default(now())
+  processedAt DateTime?
+
+  entities DocumentEntity[]
+
+  @@index([patientId])
+  @@index([encounterId])
+  @@map("documents")
+}
+
+model DocumentEntity {
+  id           String    @id @default(uuid())
+  documentId   String
+  document     Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  entityType   String    // DIAGNOSIS, MEDICATION, DOSAGE, LAB_TEST, LAB_VALUE, PROCEDURE, DATE, DOCTOR_NAME, HOSPITAL_NAME, OTHER
+  entityValue  String
+  confidence   Float
+  position     String?
+  status       String    @default("PENDING") // PENDING, CONFIRMED, EDITED, REJECTED
+  verifiedBy   String?
+  verifiedAt   DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([documentId])
+  @@map("document_entities")
+}
+
+// ============================================================================
+// RED FLAGS & TRIAGE
+// ============================================================================
+
+model RedFlag {
+  id            String    @id @default(uuid())
+  encounterId   String
+  encounter     Encounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
+  ruleId        String?
+  flagName      String
+  description   String
+  severity      String    // LOW, NORMAL, HIGH, URGENT
+  triggeredBy   String
+  acknowledged  Boolean   @default(false)
+  acknowledgedBy String?
+  acknowledgedAt DateTime?
+  createdAt     DateTime  @default(now())
+
+  alerts TriageAlert[]
+
+  @@index([encounterId])
+  @@map("red_flags")
+}
+
+model TriageAlert {
+  id          String    @id @default(uuid())
+  encounterId String
+  encounter   Encounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
+  redFlagId   String?
+  redFlag     RedFlag?  @relation(fields: [redFlagId], references: [id])
+  recipientId String
+  status      String    @default("SENT") // SENT, DELIVERED, READ, ACKNOWLEDGED, RESOLVED
+  message     String
+  sentAt      DateTime  @default(now())
+  readAt      DateTime?
+
+  @@index([encounterId])
+  @@index([recipientId])
+  @@map("triage_alerts")
+}
+
+// ============================================================================
+// MEDICAL TIMELINE
+// ============================================================================
+
+model TimelineEvent {
+  id          String   @id @default(uuid())
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  eventType   String   // DIAGNOSIS, MEDICATION_START, MEDICATION_STOP, LAB_RESULT, PROCEDURE, SURGERY, HOSPITAL_VISIT, DOCUMENT_UPLOAD, SYMPTOM_ONSET, OTHER
+  title       String
+  description String?
+  eventDate   DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([patientId])
+  @@map("timeline_events")
+}
+
+// ============================================================================
+// CONSENT MANAGEMENT
+// ============================================================================
+
+model Consent {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  consentType String    // DATA_COLLECTION, AI_PROCESSING, DOCUMENT_DIGITIZATION, ABDM_INTEGRATION, DATA_SHARING, RESEARCH
+  status      String    // GIVEN, WITHDRAWN, EXPIRED
+  givenAt     DateTime  @default(now())
+  withdrawnAt DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
+  @@map("consents")
+}
+
+// ============================================================================
+// AUDIT & LOGGING
+// ============================================================================
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  resource  String?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================================================
+// CLINICAL QUESTION BANK & RED FLAG RULES
+// ============================================================================
+
+model QuestionBank {
+  id           String   @id @default(uuid())
+  category     String
+  subcategory  String?
+  questionText String
+  answerType   String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category])
+  @@map("question_bank")
+}
+
+model RedFlagRule {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String
+  severity    String   // LOW, NORMAL, HIGH, URGENT
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("red_flag_rules")
+}

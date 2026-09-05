@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "secondary-fixed-dim": "#93ccff", "primary-fixed": "#8df5e4", "surface-variant": "#d4e6e4", "outline": "#6d7a77", "on-error-container": "#93000a", "primary-container": "#008376", "primary-fixed-dim": "#70d8c8", "tertiary-fixed": "#7ffc97", "surface-container-low": "#e5f7f5", "on-secondary-fixed": "#001d31", "secondary-container": "#5bb8fe", "secondary-fixed": "#cce5ff", "tertiary-fixed-dim": "#62df7d", "surface-dim": "#cbdedb", "surface-container-highest": "#d4e6e4", "primary": "#00685d", "inverse-surface": "#233332", "background": "#ebfdfa", "on-primary-fixed": "#00201c", "on-tertiary-fixed-variant": "#005320", "error": "#ba1a1a", "on-tertiary-container": "#f7fff2", "surface-tint": "#006b5f", "surface-container-high": "#daece9", "secondary": "#006398", "surface-container": "#dff2ef", "surface-container-lowest": "#ffffff", "on-secondary-container": "#00476e", "on-primary-container": "#f4fffb", "outline-variant": "#bcc9c5", "on-surface-variant": "#3d4946", "on-secondary-fixed-variant": "#004b73", "surface-bright": "#ebfdfa", "inverse-primary": "#70d8c8", "tertiary-container": "#00873a", "on-tertiary-fixed": "#002109", "inverse-on-surface": "#e2f5f2", "on-tertiary": "#ffffff", "on-secondary": "#ffffff", "on-primary-fixed-variant": "#005048", "surface": "#ebfdfa", "error-container": "#ffdad6", "tertiary": "#006b2c", "on-primary": "#ffffff", "on-surface": "#0e1e1d", "on-error": "#ffffff", "on-background": "#0e1e1d" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-2xs": "0.25rem", "space-md": "1rem", "space-3xl": "4rem", "kiosk-gutter": "1.5rem", "space-sm": "0.75rem", "mobile-margin": "1rem", "space-xs": "0.5rem", "kiosk-margin": "2rem", "space-xl": "2rem", "space-2xl": "3rem", "desktop-gutter": "1.5rem", "space-lg": "1.5rem" }, "fontFamily": { "body-lg": ["Inter"], "body-md": ["Inter"], "label-lg": ["Inter"], "body-xl": ["Inter"], "headline-md": ["Plus Jakarta Sans"], "display-lg": ["Plus Jakarta Sans"], "display-lg-mobile": ["Plus Jakarta Sans"], "label-md": ["Inter"], "title-lg": ["Plus Jakarta Sans"], "title-md": ["Inter"], "kiosk-touch-prompt": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Plus Jakarta Sans"], "label-sm": ["Inter"], "headline-sm": ["Plus Jakarta Sans"] }, "fontSize": { "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "400" }], "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }], "label-lg": ["16px", { "lineHeight": "22px", "fontWeight": "600" }], "body-xl": ["18px", { "lineHeight": "28px", "fontWeight": "400" }], "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }], "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "display-lg-mobile": ["34px", { "lineHeight": "42px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "600" }], "title-lg": ["18px", { "lineHeight": "26px", "fontWeight": "600" }], "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "kiosk-touch-prompt": ["22px", { "lineHeight": "30px", "fontWeight": "700" }], "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "headline-lg-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }], "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }] } } } }</script></head><body class="bg-surface font-body-md text-on-surface flex flex-col min-h-screen selection:bg-primary/20"><header class="fixed top-0 inset-x-0 z-50 bg-surface/80 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 px-space-md flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><img alt="CUREX Hospital Brand Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XRulkVVIgrs2iWpp-noe928enERNthYi1E5is9MpvEI7CKsMXCPnfrdi-FXaSs49pgkdEjYxdDBPd5ZDmqlRFsZbF-pnwM42JeaiU5Yy64G5XVjtQU3wuN4hp7QU7U4E4incJWp2zJ8lJ5Rl2Hi_taeruLsd87GMo2zZz6nzc6FbvyIlu55it3VrCfoknTYiAK4199h1nH8AL1XlXDtLZaLO-RKsR3-jx9vlc4U3rx4wogcvqOjuVHJho"/><div class="flex flex-col min-w-0"><span class="font-headline-sm text-headline-sm text-primary leading-none tracking-tight">CUREX</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Document Reports</span></div></div><div class="flex items-center gap-space-xs"><button class="h-11 px-space-sm rounded-full bg-surface-container-low text-on-surface flex items-center gap-1.5 active:scale-95 transition-all"><span class="font-label-md text-label-md text-primary font-semibold">हिन्दी</span><span class="text-outline font-label-sm text-label-sm">/</span><span class="font-label-md text-label-md text-on-surface font-semibold">Eng</span></button><button aria-label="Emergency Staff Contact" class="w-11 h-11 rounded-full bg-error-container text-on-error-container flex items-center justify-center active:scale-95 transition-all"><span class="material-symbols-outlined text-error text-[24px]">sos</span></button><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4Svq4m9aTRO1mVF31d-1rouvY0RoPN9IMspdGCgv4DeK9Hp0wbDKzmT58HdXSg39U0eDhZBeEM5eclq0JDfS4i0HMKSz5raOxEBauX-4lY2GV3xcCV1rnYUnrdragCnifjcEp_ecT8QU-DWK979BCjwGUKaX-amynZ0bdIivcR7AOondOh2xIQWJ1ZJlw0MZFt0lRWauo9f3_csYY5YPBIRPuJneiOhJ4a7qmtR0cdrxkJ5-degqp"/></div></div></header><main class="flex flex-col relative w-full pt-20 pb-28 bg-surface"><div class="flex flex-col w-full">
+<!-- Interactive Feedback Toast -->
+<div class="fixed top-24 inset-x-4 z-40 flex items-center justify-between p-space-md rounded-xl bg-inverse-surface text-inverse-on-surface shadow-xl opacity-0 pointer-events-none transition-all duration-300 transform -translate-y-2" id="toastNotification">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-fixed">check_circle</span>
+<span class="font-label-md text-label-md" id="toastMsg">Document processed successfully</span>
+</div>
+<button class="text-inverse-on-surface/80 hover:text-inverse-on-surface" onclick="dismissToast()">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="px-space-md py-space-sm flex flex-col gap-space-lg max-w-2xl mx-auto w-full">
+<!-- Header Section with Bilingual Title & Audio Prompt -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm w-fit">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+            Step 4 of 6 • Documents Intake
+          </span>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-bold tracking-tight mt-1">
+            Do you have previous medical reports?
+          </h1>
+<p class="font-headline-sm text-headline-sm text-primary font-semibold">
+            क्या आपके पास पुरानी जांच रिपोर्ट या पर्ची है?
+          </p>
+</div>
+<!-- Touch-friendly Voice Assistance Pill -->
+<button aria-label="Listen in Hindi or English" class="shrink-0 h-12 px-space-sm rounded-full bg-primary-container text-on-primary-container flex items-center gap-1.5 active:scale-95 transition-transform shadow-sm" id="audioPromptBtn" onclick="toggleAudioSpeech()">
+<span class="material-symbols-outlined text-[24px]">volume_up</span>
+<span class="font-label-md text-label-md hidden sm:inline">सुनें / Listen</span>
+</button>
+</div>
+<!-- Optional Clarification Banner -->
+<div class="flex items-center gap-space-xs p-space-sm rounded-xl bg-surface-container-low text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-[22px] shrink-0">info</span>
+<p class="font-body-md text-body-md">
+<strong class="font-semibold text-on-surface">Strictly OPTIONAL (यह पूर्णतः वैकल्पिक है):</strong>
+          Upload or scan if available to help your doctor review previous dosages.
+        </p>
+</div>
+</div>
+<!-- Document Category Selector Chips -->
+<div class="flex flex-col gap-space-2xs">
+<span class="font-label-sm text-label-sm text-outline font-medium tracking-wide uppercase">Select Document Type / दस्तावेज़ का प्रकार</span>
+<div class="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none" role="tablist">
+<button class="doc-chip active flex items-center gap-1.5 px-4 h-11 rounded-full bg-primary text-on-primary shadow-sm whitespace-nowrap active:scale-95 transition-all" onclick="selectCategory(this)">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+<span class="font-label-md text-label-md">Prescription (पर्ची)</span>
+</button>
+<button class="doc-chip flex items-center gap-1.5 px-4 h-11 rounded-full bg-surface-container-high text-on-surface hover:bg-surface-variant whitespace-nowrap active:scale-95 transition-all" onclick="selectCategory(this)">
+<span class="material-symbols-outlined text-[18px]">biotech</span>
+<span class="font-label-md text-label-md">Lab Blood Test</span>
+</button>
+<button class="doc-chip flex items-center gap-1.5 px-4 h-11 rounded-full bg-surface-container-high text-on-surface hover:bg-surface-variant whitespace-nowrap active:scale-95 transition-all" onclick="selectCategory(this)">
+<span class="material-symbols-outlined text-[18px]">hotel</span>
+<span class="font-label-md text-label-md">Discharge Summary</span>
+</button>
+<button class="doc-chip flex items-center gap-1.5 px-4 h-11 rounded-full bg-surface-container-high text-on-surface hover:bg-surface-variant whitespace-nowrap active:scale-95 transition-all" onclick="selectCategory(this)">
+<span class="material-symbols-outlined text-[18px]">radiology</span>
+<span class="font-label-md text-label-md">ECG / X-Ray</span>
+</button>
+</div>
+</div>
+<!-- Three Main Touch Cards for Input -->
+<div class="grid grid-cols-1 gap-space-md">
+<!-- 1. Live Camera Scanner Card with Viewfinder Simulation -->
+<div class="relative flex flex-col rounded-2xl bg-surface-container-lowest shadow-md overflow-hidden transition-all duration-200 hover:shadow-lg">
+<div class="relative h-48 w-full bg-inverse-surface overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover opacity-60" data-alt="A scanned physical handwritten Indian medical doctor prescription paper on a clean hospital intake clinic desk, showing Dr Ramesh Sharma letterhead, clear clinical notes, stethoscopes nearby in gentle daylight with soft teal medical shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZ-1nUceXirxZ4wj-lTCnVm7vjGZ-tbSpA7Cs_KZyaAUGnZBNBWq4bVXcimPNPCO_f1lUq0MYdw6XwA1Bw6IGP3YtE_If9NCsH8y1jcs0Efp6UsNR9zSBHa1bJ9_AKF6qGEf9XL0iqn4HoVZu8tNLx2JT-nhPhsAZ75p1mVK7OSR1AJL074XQiFUWl65zh4-X_z6_X_SLQxHbC9WAADq4fc-ye92J7r26f4prrEzliQDuDpSqu8qV9"/>
+<!-- Viewfinder Frame Simulation Overlay -->
+<div class="absolute inset-4 rounded-xl pointer-events-none flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div class="w-6 h-6 border-t-2 border-l-2 border-primary-fixed rounded-tl-md"></div>
+<span class="px-2.5 py-0.5 rounded-full bg-primary/80 backdrop-blur text-on-primary font-label-sm text-label-sm flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed animate-ping"></span>
+                OCR Focused
+              </span>
+<div class="w-6 h-6 border-t-2 border-r-2 border-primary-fixed rounded-tr-md"></div>
+</div>
+<!-- Animated Scan Line -->
+<div class="w-full h-0.5 bg-gradient-to-r from-transparent via-primary-fixed to-transparent opacity-80 animate-pulse"></div>
+<div class="flex justify-between items-end">
+<div class="w-6 h-6 border-b-2 border-l-2 border-primary-fixed rounded-bl-md"></div>
+<span class="text-inverse-on-surface/90 font-label-sm text-label-sm tracking-wider uppercase bg-inverse-surface/60 px-2 py-0.5 rounded">
+                Prescription: Dr. Ramesh Sharma
+              </span>
+<div class="w-6 h-6 border-b-2 border-r-2 border-primary-fixed rounded-br-md"></div>
+</div>
+</div>
+</div>
+<div class="p-space-lg flex items-center justify-between gap-space-sm bg-surface-container-lowest">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-14 h-14 rounded-2xl bg-primary-container text-on-primary-container flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[32px]">photo_camera</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-lg text-title-lg text-on-surface font-bold">Scan with Camera</span>
+<span class="font-body-md text-body-md text-primary font-medium truncate">पर्चे की फोटो खींचें (Live Optical OCR)</span>
+</div>
+</div>
+<button class="min-h-[56px] px-6 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg active:scale-95 transition-transform flex items-center gap-2 shrink-0 shadow-sm" onclick="triggerAction('Camera viewfinder triggered. Hold steady.')">
+<span>Scan</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Quick Upload Dual Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<!-- 2. PDF Digital Report -->
+<button class="flex items-center gap-space-md p-space-md rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md active:scale-98 transition-all text-left group" onclick="triggerAction('Opened digital file selector (PDF support ready)')">
+<div class="w-14 h-14 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[30px]">picture_as_pdf</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface font-semibold">Upload PDF</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Digital lab report</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium">पीडीएफ फाइल चुनें</span>
+</div>
+</button>
+<!-- 3. Photo Gallery -->
+<button class="flex items-center gap-space-md p-space-md rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md active:scale-98 transition-all text-left group" onclick="triggerAction('Opened gallery photo picker')">
+<div class="w-14 h-14 rounded-xl bg-surface-container-high text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[30px]">photo_library</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface font-semibold">From Gallery</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Choose saved photo</span>
+<span class="font-label-sm text-label-sm text-primary font-medium">गैलरी से अपलोड करें</span>
+</div>
+</button>
+</div>
+</div>
+<!-- AI Extraction Result Preview Deck -->
+<div class="flex flex-col gap-space-sm mt-1">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-tertiary-container text-on-tertiary-container">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</span>
+<span class="font-label-md text-label-md text-on-surface font-bold">1 Report Extracted Successfully</span>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold">
+          OCR Score 98%
+        </span>
+</div>
+<!-- Main Structured Clinical Entity Card -->
+<div class="flex flex-col rounded-2xl bg-surface-container-lowest shadow-md overflow-hidden">
+<!-- Top Status Banner -->
+<div class="px-space-md py-2.5 bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">auto_awesome</span>
+<span class="font-label-md text-label-md text-primary font-semibold">AI Extracted • Verified by OCR</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Dr. Ramesh Sharma, MD</span>
+</div>
+<!-- Entity Field List -->
+<div class="p-space-md flex flex-col gap-space-md">
+<!-- Diagnosis -->
+<div class="flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-surface-container text-primary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">clinical_notes</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Identified Diagnosis / निदान</span>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="font-title-md text-title-md text-on-surface font-bold">Type 2 Diabetes Mellitus</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">2024</span>
+</div>
+</div>
+</div>
+<!-- Active Medications -->
+<div class="flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-surface-container text-primary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">medication</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Current Medicine / वर्तमान दवाइयाँ</span>
+<div class="flex flex-wrap items-center gap-1.5 mt-1">
+<span class="px-3 py-1 rounded-xl bg-surface-container-low text-on-surface font-label-md text-label-md font-medium">
+                  Tab Metformin 500mg <span class="text-primary font-bold">(OD)</span>
+</span>
+<span class="px-3 py-1 rounded-xl bg-surface-container-low text-on-surface font-label-md text-label-md font-medium">
+                  Ecosprin 75mg
+                </span>
+</div>
+</div>
+</div>
+<!-- Lab Vitals -->
+<div class="flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-surface-container text-secondary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">monitor_heart</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Recent Lab Value / जांच रिपोर्ट</span>
+<div class="flex items-center justify-between mt-1 flex-wrap gap-2">
+<div class="flex items-baseline gap-1.5">
+<span class="font-title-lg text-title-lg text-secondary font-bold">168</span>
+<span class="font-body-md text-body-md text-on-surface-variant">mg/dL</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">(Fasting Blood Sugar)</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant">12 Aug 2026</span>
+</div>
+</div>
+</div>
+<!-- Hospital / Clinic Origin -->
+<div class="flex items-center justify-between p-space-sm rounded-xl bg-surface-container-low">
+<div class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-primary text-[20px] shrink-0">local_hospital</span>
+<span class="font-label-md text-label-md text-on-surface font-medium truncate">CUREX Health Care / Civil Hospital</span>
+</div>
+<button class="font-label-sm text-label-sm text-primary font-bold hover:underline shrink-0" onclick="triggerAction('Viewing original prescription image')">
+              View Scan
+            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Supplementary Information Card: Human Reassurance -->
+<div class="flex items-center gap-space-md p-space-md rounded-2xl bg-surface-container-high">
+<img class="w-14 h-14 rounded-full object-cover shrink-0" data-alt="A friendly Indian female nurse smiling warmly holding a medical tablet inside a contemporary green and white hospital intake lobby, comforting lighting and serene patient atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBk8rX8E0RZJnwNsNjRE_fsG_6PHMERtU6BrEzZQi_APNkQJrfRLpkbpP0NQwVL3OWOlHTlore6BRFE9AGyAgrhx1jQCMIEmlA3M2Q0Z94KAofnlsRqGB75tDLBVWlsLWpaRqYtolYFOO7idt1YWk600lOvl5fDStXn2Aql0qxy_ZsVPvnvJ64z0vqnVliluPSc_9HGLt9VMGW35CW5-TR-0smX9OSVpgOUE0X4L7GDibw3AN0eMYpO"/>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface font-semibold">Doctor will re-verify everything</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Your attending physician reviews physical papers during consultation. Nothing is final until confirmed.</span>
+</div>
+</div>
+<!-- Fixed Bottom Actions Zone -->
+<div class="flex flex-col gap-space-sm pt-space-xs pb-space-md">
+<!-- Primary Forward Action (56px touch height) -->
+<button class="w-full min-h-[56px] px-space-lg rounded-xl bg-primary text-on-primary font-label-lg text-label-lg active:scale-98 transition-all flex items-center justify-center gap-2 shadow-md hover:bg-primary-container" onclick="confirmAndProceed()">
+<span>समीक्षा करें / Confirm &amp; View Timeline</span>
+<span class="material-symbols-outlined text-[22px]">arrow_forward</span>
+</button>
+<!-- Secondary Skip Action -->
+<button class="w-full min-h-[48px] px-space-md rounded-xl bg-transparent text-on-surface-variant font-label-md text-label-md active:bg-surface-container transition-colors flex items-center justify-center gap-1.5" onclick="skipReports()">
+<span class="material-symbols-outlined text-[20px]">skip_next</span>
+<span>Skip for Now / बाद में जोड़ें</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  function selectCategory(button) {
+    const chips = document.querySelectorAll('.doc-chip');
+    chips.forEach(chip => {
+      chip.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
+      chip.classList.add('bg-surface-container-high', 'text-on-surface');
+    });
+    button.classList.remove('bg-surface-container-high', 'text-on-surface');
+    button.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+    showToast('Filtered for ' + button.innerText.trim());
+  }
+
+  function triggerAction(message) {
+    showToast(message);
+  }
+
+  function showToast(text) {
+    const toast = document.getElementById('toastNotification');
+    const msg = document.getElementById('toastMsg');
+    if (!toast || !msg) return;
+    msg.textContent = text;
+    toast.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-2');
+    toast.classList.add('opacity-100', 'translate-y-0');
+    
+    if (window._toastTimeout) clearTimeout(window._toastTimeout);
+    window._toastTimeout = setTimeout(() => {
+      dismissToast();
+    }, 2800);
+  }
+
+  function dismissToast() {
+    const toast = document.getElementById('toastNotification');
+    if (!toast) return;
+    toast.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
+    toast.classList.remove('opacity-100', 'translate-y-0');
+  }
+
+  function toggleAudioSpeech() {
+    const btn = document.getElementById('audioPromptBtn');
+    if (!btn) return;
+    btn.classList.add('ring-2', 'ring-primary-fixed');
+    showToast('Playing Hindi & English Audio Guide...');
+    setTimeout(() => {
+      btn.classList.remove('ring-2', 'ring-primary-fixed');
+    }, 1800);
+  }
+
+  function confirmAndProceed() {
+    showToast('Prescription saved. Navigating to timeline...');
+    setTimeout(() => {
+      const timelineNav = document.querySelector('[data-path="care-timeline"]');
+      if (timelineNav) timelineNav.click();
+    }, 600);
+  }
+
+  function skipReports() {
+    showToast('Skipped reports. You can upload later.');
+    setTimeout(() => {
+      const timelineNav = document.querySelector('[data-path="care-timeline"]');
+      if (timelineNav) timelineNav.click();
+    }, 500);
+  }
+</script></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.05)]" data-active-classes="text-primary font-semibold"><div class="flex justify-around items-center h-20 px-space-xs"><a class="flex flex-col items-center justify-center gap-1 min-w-[56px] min-h-[48px] py-1 text-on-surface-variant transition-colors active:scale-95" data-path="intake-home" href="#"><span class="material-symbols-outlined text-[24px]">health_and_safety</span><span class="font-label-sm text-label-sm">Home</span></a><a class="flex flex-col items-center justify-center gap-1 min-w-[56px] min-h-[48px] py-1 text-on-surface-variant transition-colors active:scale-95" data-path="medical-history" href="#"><span class="material-symbols-outlined text-[24px]">clinical_notes</span><span class="font-label-sm text-label-sm">History</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-1 min-w-[56px] min-h-[48px] py-1 transition-colors active:scale-95 text-primary font-semibold" data-path="document-reports" href="#"><span class="material-symbols-outlined text-[24px]">description</span><span class="font-label-sm text-label-sm">Reports</span></a><a class="flex flex-col items-center justify-center gap-1 min-w-[56px] min-h-[48px] py-1 text-on-surface-variant transition-colors active:scale-95" data-path="care-timeline" href="#"><span class="material-symbols-outlined text-[24px]">timeline</span><span class="font-label-sm text-label-sm">Timeline</span></a><a class="flex flex-col items-center justify-center gap-1 min-w-[56px] min-h-[48px] py-1 text-on-surface-variant transition-colors active:scale-95" data-path="intake-summary" href="#"><span class="material-symbols-outlined text-[24px]">fact_check</span><span class="font-label-sm text-label-sm">Summary</span></a></div></nav></body></html>
