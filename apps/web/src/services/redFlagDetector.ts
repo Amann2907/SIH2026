@@ -149,7 +149,7 @@ const RED_FLAG_RULES: RedFlagRule[] = [
       /तेज़.*बुखार|बहुत.*बुखार/i,
       /high.*fever|very.*high.*fever/i,
     ],
-    conditions: (symptoms, answers) => {
+    conditions: (_symptoms, answers) => {
       const temp = parseFloat(answers.fever_temperature);
       return !isNaN(temp) && temp >= 103;
     },
@@ -168,7 +168,7 @@ const RED_FLAG_RULES: RedFlagRule[] = [
       /बहुत.*दर्द.*पेट|असहनीय.*दर्द/i,
       /severe.*abdominal.*pain|unbearable.*pain/i,
     ],
-    conditions: (symptoms, answers) => {
+    conditions: (_symptoms, answers) => {
       const severity = parseInt(answers.abdominal_severity);
       return !isNaN(severity) && severity >= 8;
     },

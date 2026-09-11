@@ -20,7 +20,7 @@ export default function MedicalDocuments() {
   const { state, updateDocumentData, addDocument } = useIntake();
   const [selectedCategory, setSelectedCategory] = useState(state.documentData.category);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [isScanning, setIsScanning] = useState(false);
+  const [isScanning, _setIsScanning] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   
   // File input refs
@@ -50,7 +50,7 @@ export default function MedicalDocuments() {
   /**
    * Handle file upload from any source (camera, PDF, gallery)
    */
-  const handleFileUpload = async (files: FileList | null, source: string) => {
+  const handleFileUpload = async (files: FileList | null, _source: string) => {
     if (!files || files.length === 0) return;
 
     const file = files[0];
@@ -131,7 +131,9 @@ export default function MedicalDocuments() {
         name: file.name,
         url: preview || '',
         uploadedAt: new Date().toISOString(),
+        extractedAt: new Date().toISOString(),
         ocrScore: Math.round(result.ocr.confidence),
+        ocrConfidence: Math.round(result.ocr.confidence),
         diagnosis: result.structuredData.diagnosis[0],
         medications: result.structuredData.medications.map(m => 
           `${m.name}${m.dosage ? ' ' + m.dosage : ''}${m.frequency ? ' - ' + m.frequency : ''}`

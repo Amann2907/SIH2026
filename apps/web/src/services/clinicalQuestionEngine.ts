@@ -393,7 +393,7 @@ class ClinicalQuestionEngine {
   /**
    * Check if a question has been answered based on transcript
    */
-  isQuestionAnswered(question: QuestionTemplate, transcript: string): boolean {
+  isQuestionAnswered(_question: QuestionTemplate, transcript: string): boolean {
     // Simple heuristic: if transcript is long enough and contains relevant keywords
     return transcript.length > 10;
   }

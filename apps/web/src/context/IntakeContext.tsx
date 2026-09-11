@@ -7,7 +7,10 @@ export interface ExtractedDocument {
   id: string;
   type: string;
   name: string;
+  url?: string;
+  uploadedAt?: string;
   extractedAt: string;
+  ocrScore?: number;
   ocrConfidence: number;
   diagnosis?: string;
   medications?: string[];
