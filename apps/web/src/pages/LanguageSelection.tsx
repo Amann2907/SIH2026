@@ -33,8 +33,8 @@ export default function LanguageSelection() {
             </div>
             <div className="flex flex-col">
               <div className="flex items-baseline space-x-0.5">
-                <span className="text-xl font-bold text-primary tracking-tight">CURE</span>
-                <span className="text-xl font-black text-primary">X</span>
+                <span className="text-xl font-bold text-primary tracking-tight">MEDI</span>
+                <span className="text-xl font-black text-primary">KIOSK</span>
               </div>
               <span className="text-xs text-on-surface-variant uppercase tracking-wider">Health Intake Kiosk</span>
             </div>
@@ -58,7 +58,7 @@ export default function LanguageSelection() {
                 Hospital Triage Station #04
               </span>
               <h1 className="text-2xl font-display font-bold text-on-surface tracking-tight">
-                नमस्ते <span className="text-lg text-on-surface-variant font-normal">/ Welcome to CUREX</span>
+                नमस्ते <span className="text-lg text-on-surface-variant font-normal">/ Welcome to MediKiosk</span>
               </h1>
             </div>
             <div className="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center shrink-0">

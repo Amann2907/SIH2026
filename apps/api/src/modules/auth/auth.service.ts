@@ -6,7 +6,7 @@ import {
   generateRefreshToken,
   JWTPayload,
 } from '../../utils/auth';
-import { AuthenticationError, ConflictError, ValidationError } from '../../utils/errors';
+import { AuthenticationError, ConflictError } from '../../utils/errors';
 import { logger } from '../../utils/logger';
 
 export interface LoginInput {
@@ -40,12 +40,6 @@ export class AuthService {
   async login(input: LoginInput, ipAddress?: string, userAgent?: string): Promise<AuthResponse> {
     const user = await prisma.user.findUnique({
       where: { email: input.email },
-      include: {
-        patient: true,
-        doctor: true,
-        nurse: true,
-        admin: true,
-      },
     });
 
     if (!user) {
@@ -103,7 +97,6 @@ export class AuthService {
         id: user.id,
         email: user.email,
         role: user.role,
-        profile: user.patient || user.doctor || user.nurse || user.admin,
       },
     };
   }
@@ -121,54 +114,12 @@ export class AuthService {
     // Hash password
     const hashedPassword = await hashPassword(input.password);
 
-    // Create user with profile based on role
+    // Simplified user creation for demo
     const user = await prisma.user.create({
       data: {
         email: input.email,
         password: hashedPassword,
         role: input.role,
-        ...(input.role === 'PATIENT' && {
-          patient: {
-            create: {
-              firstName: input.firstName,
-              lastName: input.lastName,
-              phone: input.phone || '',
-              dateOfBirth: input.dateOfBirth || new Date('2000-01-01'),
-              gender: input.gender || 'PREFER_NOT_TO_SAY',
-            },
-          },
-        }),
-        ...(input.role === 'DOCTOR' && {
-          doctor: {
-            create: {
-              firstName: input.firstName,
-              lastName: input.lastName,
-              qualification: 'MD',
-            },
-          },
-        }),
-        ...(input.role === 'NURSE' && {
-          nurse: {
-            create: {
-              firstName: input.firstName,
-              lastName: input.lastName,
-            },
-          },
-        }),
-        ...(input.role === 'ADMIN' && {
-          admin: {
-            create: {
-              firstName: input.firstName,
-              lastName: input.lastName,
-            },
-          },
-        }),
-      },
-      include: {
-        patient: true,
-        doctor: true,
-        nurse: true,
-        admin: true,
       },
     });
 
@@ -190,7 +141,6 @@ export class AuthService {
         id: user.id,
         email: user.email,
         role: user.role,
-        profile: user.patient || user.doctor || user.nurse || user.admin,
       },
     };
   }

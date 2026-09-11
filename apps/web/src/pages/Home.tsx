@@ -1,6 +1,14 @@
 import { Link } from 'react-router-dom';
+import { useIntake } from '../context/IntakeContext';
 
 export default function Home() {
+  const { startNewSession } = useIntake();
+
+  const handleStartIntake = () => {
+    // Reset session for new patient
+    startNewSession();
+  };
+
   return (
     <div className="min-h-screen bg-surface flex flex-col">
       {/* Header */}
@@ -12,8 +20,8 @@ export default function Home() {
             </div>
             <div>
               <div className="flex items-baseline space-x-1">
-                <span className="text-3xl font-display font-bold text-primary tracking-tight">CURE</span>
-                <span className="text-3xl font-display font-black text-primary">X</span>
+                <span className="text-3xl font-display font-bold text-primary tracking-tight">MEDI</span>
+                <span className="text-3xl font-display font-black text-primary">KIOSK</span>
               </div>
               <p className="text-sm text-on-surface-variant uppercase tracking-wider">Clinical Intake Platform</p>
             </div>
@@ -30,7 +38,7 @@ export default function Home() {
               {/* Title */}
               <div>
                 <h1 className="text-4xl sm:text-5xl font-display font-bold text-on-surface mb-2">
-                  नमस्ते / Welcome to CUREX
+                  नमस्ते / Welcome to MediKiosk
                 </h1>
                 <p className="text-xl text-on-surface-variant">
                   Smarter Clinical Intake. Better Prepared Care.
@@ -68,6 +76,7 @@ export default function Home() {
               <div className="pt-4">
                 <Link
                   to="/language"
+                  onClick={handleStartIntake}
                   className="inline-flex items-center space-x-3 bg-primary hover:bg-primary-container text-on-primary font-display font-bold text-xl px-8 py-4 rounded-xl shadow-lg transition-all hover:scale-105"
                 >
                   <span>शुरू करें / START INTAKE</span>

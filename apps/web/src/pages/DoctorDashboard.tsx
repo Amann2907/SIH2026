@@ -23,7 +23,7 @@ export default function DoctorDashboard() {
                 <span className="font-display font-bold text-on-surface text-lg">Dr. Ramesh Sharma</span>
                 <span className="bg-primary/10 text-primary text-xs font-bold px-2 py-0.5 rounded-full">Sr. Cardiologist</span>
               </div>
-              <p className="text-xs text-on-surface-variant">OPD Station #12 • CUREX Triage Queue</p>
+              <p className="text-xs text-on-surface-variant">OPD Station #12 • MediKiosk Triage Queue</p>
             </div>
           </div>
 

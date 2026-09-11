@@ -1,13 +1,32 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useIntake } from '../context/IntakeContext';
+import { ocrService } from '../services/ocrService';
+
+interface UploadedFile {
+  file: File;
+  preview?: string;
+  status: 'uploading' | 'processing' | 'completed' | 'error';
+  ocrScore?: number;
+  extractedData?: {
+    diagnosis?: string;
+    medications?: string[];
+    labValues?: Record<string, string>;
+  };
+}
 
 export default function MedicalDocuments() {
   const navigate = useNavigate();
-  const { state, updateDocumentData } = useIntake();
+  const { state, updateDocumentData, addDocument } = useIntake();
   const [selectedCategory, setSelectedCategory] = useState(state.documentData.category);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  
+  // File input refs
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const categories = [
     { name: 'Prescription (पर्ची)', icon: 'receipt_long' },
@@ -28,17 +47,117 @@ export default function MedicalDocuments() {
     updateDocumentData(catName);
   };
 
-  const triggerScan = () => {
-    setIsScanning(true);
-    showToast('Camera Scanner triggered. OCR processing prescription...');
-    setTimeout(() => {
-      setIsScanning(false);
-      showToast('Document processed successfully! (OCR score: 98%)');
-    }, 2000);
+  /**
+   * Handle file upload from any source (camera, PDF, gallery)
+   */
+  const handleFileUpload = async (files: FileList | null, source: string) => {
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    
+    // Validate file type
+    const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const validPdfType = 'application/pdf';
+    
+    if (!validImageTypes.includes(file.type) && file.type !== validPdfType) {
+      showToast('❌ Invalid file type. Please upload an image (JPG, PNG) or PDF.');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      showToast('❌ File too large. Maximum size is 10MB.');
+      return;
+    }
+
+    showToast(`📤 Uploading ${file.name}...`);
+
+    // Create preview for images
+    let preview: string | undefined;
+    if (validImageTypes.includes(file.type)) {
+      preview = URL.createObjectURL(file);
+    }
+
+    // Add to uploaded files
+    const uploadedFile: UploadedFile = {
+      file,
+      preview,
+      status: 'uploading',
+    };
+    
+    setUploadedFiles(prev => [...prev, uploadedFile]);
+
+    try {
+      // Simulate upload delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Update status to processing
+      setUploadedFiles(prev => 
+        prev.map(f => f.file === file ? { ...f, status: 'processing' } : f)
+      );
+      showToast('🔍 Processing with OCR engine...');
+
+      // Process with OCR service
+      const result = await ocrService.processClinicalDocument(file);
+
+      // Update with results
+      setUploadedFiles(prev =>
+        prev.map(f =>
+          f.file === file
+            ? {
+                ...f,
+                status: 'completed',
+                ocrScore: Math.round(result.ocr.confidence),
+                extractedData: {
+                  diagnosis: result.structuredData.diagnosis[0],
+                  medications: result.structuredData.medications.map(m => 
+                    `${m.name}${m.dosage ? ' ' + m.dosage : ''}${m.frequency ? ' - ' + m.frequency : ''}`
+                  ),
+                  labValues: result.structuredData.labValues.reduce((acc, lab) => {
+                    acc[lab.test] = `${lab.value} ${lab.unit || ''} ${lab.status ? '(' + lab.status.toUpperCase() + ')' : ''}`.trim();
+                    return acc;
+                  }, {} as Record<string, string>),
+                },
+              }
+            : f
+        )
+      );
+
+      // Add to context
+      addDocument({
+        id: `DOC-${Date.now()}`,
+        type: file.type.includes('pdf') ? 'pdf' : 'image',
+        name: file.name,
+        url: preview || '',
+        uploadedAt: new Date().toISOString(),
+        ocrScore: Math.round(result.ocr.confidence),
+        diagnosis: result.structuredData.diagnosis[0],
+        medications: result.structuredData.medications.map(m => 
+          `${m.name}${m.dosage ? ' ' + m.dosage : ''}${m.frequency ? ' - ' + m.frequency : ''}`
+        ),
+      });
+
+      showToast(`✅ ${file.name} processed successfully! OCR Score: ${Math.round(result.ocr.confidence)}%`);
+    } catch (error) {
+      console.error('OCR processing error:', error);
+      setUploadedFiles(prev =>
+        prev.map(f => f.file === file ? { ...f, status: 'error' } : f)
+      );
+      showToast('❌ Error processing document. Please try again.');
+    }
   };
 
-  const triggerUpload = (type: string) => {
-    showToast(`Uploaded ${type}. Extracted Type 2 Diabetes & Metformin 500mg.`);
+  const triggerCamera = () => {
+    cameraInputRef.current?.click();
+  };
+
+  const triggerPdfUpload = () => {
+    pdfInputRef.current?.click();
+  };
+
+  const triggerGalleryUpload = () => {
+    galleryInputRef.current?.click();
   };
 
   return (
@@ -82,6 +201,29 @@ export default function MedicalDocuments() {
 
       {/* Main Container */}
       <main className="flex flex-col w-full pt-20 px-4 pb-28 space-y-4 max-w-2xl mx-auto">
+        {/* Hidden File Inputs */}
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={(e) => handleFileUpload(e.target.files, 'camera')}
+          className="hidden"
+        />
+        <input
+          ref={pdfInputRef}
+          type="file"
+          accept="application/pdf"
+          onChange={(e) => handleFileUpload(e.target.files, 'pdf')}
+          className="hidden"
+        />
+        <input
+          ref={galleryInputRef}
+          type="file"
+          accept="image/*"
+          onChange={(e) => handleFileUpload(e.target.files, 'gallery')}
+          className="hidden"
+        />
         {/* Title Section */}
         <div className="space-y-2">
           <div className="space-y-1">
@@ -175,12 +317,12 @@ export default function MedicalDocuments() {
               </div>
             </div>
             <button
-              onClick={triggerScan}
+              onClick={triggerCamera}
               className="h-12 px-5 rounded-xl bg-primary text-on-primary font-bold text-sm flex items-center space-x-1.5 shadow-sm active:scale-95 transition-transform shrink-0"
               type="button"
             >
-              <span>{isScanning ? 'Scanning...' : 'Scan'}</span>
-              <span className="material-symbols-outlined text-lg">arrow_forward</span>
+              <span>Scan</span>
+              <span className="material-symbols-outlined text-lg">photo_camera</span>
             </button>
           </div>
         </div>
@@ -188,7 +330,7 @@ export default function MedicalDocuments() {
         {/* Quick Upload Buttons */}
         <div className="grid grid-cols-2 gap-3">
           <button
-            onClick={() => triggerUpload('Digital Lab Report PDF')}
+            onClick={triggerPdfUpload}
             className="flex items-center space-x-3 p-4 rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md active:scale-98 transition-all text-left"
             type="button"
           >
@@ -202,7 +344,7 @@ export default function MedicalDocuments() {
           </button>
 
           <button
-            onClick={() => triggerUpload('Gallery Photo')}
+            onClick={triggerGalleryUpload}
             className="flex items-center space-x-3 p-4 rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md active:scale-98 transition-all text-left"
             type="button"
           >
@@ -217,81 +359,131 @@ export default function MedicalDocuments() {
         </div>
 
         {/* AI Extracted Result Preview Deck */}
-        <div className="space-y-3 pt-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <span className="w-6 h-6 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center">
-                <span className="material-symbols-outlined text-sm">check</span>
-              </span>
-              <span className="font-bold text-on-surface text-sm">1 Report Extracted</span>
-            </div>
-            <span className="px-2.5 py-1 rounded-full bg-surface-container text-primary text-xs font-bold">
-              OCR Score 98%
-            </span>
-          </div>
-
-          {/* Structured Clinical Card */}
-          <div className="flex flex-col rounded-2xl bg-surface-container-lowest shadow-md overflow-hidden border border-surface-container">
-            <div className="px-4 py-2.5 bg-surface-container-low flex items-center justify-between text-xs">
-              <div className="flex items-center space-x-1.5 text-primary font-bold">
-                <span className="material-symbols-outlined text-base">auto_awesome</span>
-                <span>AI Extracted • Verified by OCR</span>
+        {uploadedFiles.length > 0 && (
+          <div className="space-y-3 pt-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <span className="w-6 h-6 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center">
+                  <span className="material-symbols-outlined text-sm">check</span>
+                </span>
+                <span className="font-bold text-on-surface text-sm">
+                  {uploadedFiles.filter(f => f.status === 'completed').length} Report{uploadedFiles.filter(f => f.status === 'completed').length !== 1 ? 's' : ''} Extracted
+                </span>
               </div>
-              <span className="text-on-surface-variant font-medium">Dr. Ramesh Sharma, MD</span>
+              {uploadedFiles.some(f => f.ocrScore) && (
+                <span className="px-2.5 py-1 rounded-full bg-surface-container text-primary text-xs font-bold">
+                  OCR Score {Math.round(uploadedFiles.filter(f => f.ocrScore).reduce((sum, f) => sum + (f.ocrScore || 0), 0) / uploadedFiles.filter(f => f.ocrScore).length)}%
+                </span>
+              )}
             </div>
 
-            <div className="p-4 space-y-4">
-              {/* Diagnosis */}
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 rounded-xl bg-surface-container text-primary flex items-center justify-center shrink-0 mt-0.5">
-                  <span className="material-symbols-outlined text-xl">clinical_notes</span>
-                </div>
-                <div className="flex flex-col flex-1 min-w-0">
-                  <span className="text-xs text-outline uppercase font-semibold">Identified Diagnosis / निदान</span>
-                  <div className="flex items-center space-x-2 mt-0.5">
-                    <span className="font-bold text-on-surface text-base">
-                      {state.documentData.documents[0]?.diagnosis || 'Type 2 Diabetes Mellitus'}
+            {/* Uploaded Files List */}
+            {uploadedFiles.map((uploadedFile, idx) => (
+              <div key={idx} className="flex flex-col rounded-2xl bg-surface-container-lowest shadow-md overflow-hidden border border-surface-container">
+                <div className="px-4 py-2.5 bg-surface-container-low flex items-center justify-between text-xs">
+                  <div className="flex items-center space-x-1.5 text-primary font-bold">
+                    <span className="material-symbols-outlined text-base">
+                      {uploadedFile.status === 'uploading' ? 'upload' : uploadedFile.status === 'processing' ? 'processing' : 'auto_awesome'}
                     </span>
-                    <span className="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-semibold">
-                      Confirmed
+                    <span>
+                      {uploadedFile.status === 'uploading' && 'Uploading...'}
+                      {uploadedFile.status === 'processing' && 'Processing OCR...'}
+                      {uploadedFile.status === 'completed' && 'AI Extracted • Verified by OCR'}
+                      {uploadedFile.status === 'error' && 'Error Processing'}
                     </span>
                   </div>
+                  <span className="text-on-surface-variant font-medium truncate max-w-[150px]">
+                    {uploadedFile.file.name}
+                  </span>
                 </div>
-              </div>
 
-              {/* Medications */}
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 rounded-xl bg-surface-container text-primary flex items-center justify-center shrink-0 mt-0.5">
-                  <span className="material-symbols-outlined text-xl">medication</span>
-                </div>
-                <div className="flex flex-col flex-1 min-w-0">
-                  <span className="text-xs text-outline uppercase font-semibold">Current Medicine / दवाइयाँ</span>
-                  <div className="flex flex-wrap gap-1.5 mt-1">
-                    {(state.documentData.documents[0]?.medications || ['Tab Metformin 500mg (OD)', 'Ecosprin 75mg']).map((med) => (
-                      <span key={med} className="px-3 py-1 rounded-xl bg-surface-container-low text-on-surface text-xs font-semibold">
-                        {med}
+                {uploadedFile.preview && (
+                  <div className="px-4 pt-3">
+                    <img 
+                      src={uploadedFile.preview} 
+                      alt="Uploaded document" 
+                      className="w-full h-32 object-cover rounded-xl"
+                    />
+                  </div>
+                )}
+
+                {uploadedFile.status === 'completed' && uploadedFile.extractedData && (
+                  <div className="p-4 space-y-4">
+                    {/* Diagnosis */}
+                    {uploadedFile.extractedData.diagnosis && (
+                      <div className="flex items-start space-x-3">
+                        <div className="w-10 h-10 rounded-xl bg-surface-container text-primary flex items-center justify-center shrink-0 mt-0.5">
+                          <span className="material-symbols-outlined text-xl">clinical_notes</span>
+                        </div>
+                        <div className="flex flex-col flex-1 min-w-0">
+                          <span className="text-xs text-outline uppercase font-semibold">Identified Diagnosis / निदान</span>
+                          <div className="flex items-center space-x-2 mt-0.5">
+                            <span className="font-bold text-on-surface text-base">
+                              {uploadedFile.extractedData.diagnosis}
+                            </span>
+                            <span className="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-semibold">
+                              Confirmed
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Medications */}
+                    {uploadedFile.extractedData.medications && uploadedFile.extractedData.medications.length > 0 && (
+                      <div className="flex items-start space-x-3">
+                        <div className="w-10 h-10 rounded-xl bg-surface-container text-primary flex items-center justify-center shrink-0 mt-0.5">
+                          <span className="material-symbols-outlined text-xl">medication</span>
+                        </div>
+                        <div className="flex flex-col flex-1 min-w-0">
+                          <span className="text-xs text-outline uppercase font-semibold">Current Medicine / दवाइयाँ</span>
+                          <div className="flex flex-wrap gap-1.5 mt-1">
+                            {uploadedFile.extractedData.medications.map((med) => (
+                              <span key={med} className="px-3 py-1 rounded-xl bg-surface-container-low text-on-surface text-xs font-semibold">
+                                {med}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Lab Vitals */}
+                    {uploadedFile.extractedData.labValues && Object.keys(uploadedFile.extractedData.labValues).length > 0 && (
+                      <div className="flex items-start space-x-3">
+                        <div className="w-10 h-10 rounded-xl bg-surface-container text-secondary flex items-center justify-center shrink-0 mt-0.5">
+                          <span className="material-symbols-outlined text-xl">monitor_heart</span>
+                        </div>
+                        <div className="flex flex-col flex-1 min-w-0">
+                          <span className="text-xs text-outline uppercase font-semibold">Recent Lab Values / जांच</span>
+                          <div className="space-y-1.5 mt-1">
+                            {Object.entries(uploadedFile.extractedData.labValues).map(([key, value]) => (
+                              <div key={key} className="flex items-center justify-between bg-surface-container-low p-2.5 rounded-xl text-xs">
+                                <span className="font-bold text-on-surface">{key}</span>
+                                <span className="font-bold text-error">{value}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {(uploadedFile.status === 'uploading' || uploadedFile.status === 'processing') && (
+                  <div className="p-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-sm text-on-surface-variant">
+                        {uploadedFile.status === 'uploading' ? 'Uploading file...' : 'Processing with OCR engine...'}
                       </span>
-                    ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
-
-              {/* Lab Vitals */}
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 rounded-xl bg-surface-container text-secondary flex items-center justify-center shrink-0 mt-0.5">
-                  <span className="material-symbols-outlined text-xl">monitor_heart</span>
-                </div>
-                <div className="flex flex-col flex-1 min-w-0">
-                  <span className="text-xs text-outline uppercase font-semibold">Recent Lab Value / जांच</span>
-                  <div className="flex items-center justify-between mt-1 bg-surface-container-low p-2.5 rounded-xl text-xs">
-                    <span className="font-bold text-on-surface">Fasting Blood Sugar</span>
-                    <span className="font-bold text-error">168 mg/dL (High)</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
-        </div>
+        )}
       </main>
 
       {/* Bottom Sticky Action */}

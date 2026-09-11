@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useIntake } from '../context/IntakeContext';
+import { speechService, mapLanguageToSpeechLang } from '../services/speechService';
+import { redFlagDetector, type RedFlag } from '../services/redFlagDetector';
 
 export default function VoiceIntake() {
   const navigate = useNavigate();
@@ -9,6 +11,41 @@ export default function VoiceIntake() {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [isEditingTranscript, setIsEditingTranscript] = useState(false);
   const [showTypeInput, setShowTypeInput] = useState(false);
+  const [interimTranscript, setInterimTranscript] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [permissionDenied, setPermissionDenied] = useState(false);
+  const [isSpeechSupported] = useState(speechService.isSupported());
+  const [detectedRedFlags, setDetectedRedFlags] = useState<RedFlag[]>([]);
+  const [triagePriority, setTriagePriority] = useState<'EMERGENCY' | 'URGENT' | 'ROUTINE'>('ROUTINE');
+
+  useEffect(() => {
+    const speechLang = mapLanguageToSpeechLang(state.language);
+    speechService.setLanguage(speechLang);
+  }, [state.language]);
+
+  // Auto-detect red flags whenever chief complaint changes
+  useEffect(() => {
+    if (state.voiceData.chiefComplaint) {
+      const flags = redFlagDetector.detectRedFlags(
+        state.voiceData.chiefComplaint,
+        [],
+        {}
+      );
+      setDetectedRedFlags(flags);
+      
+      if (flags.length > 0) {
+        const triage = redFlagDetector.performTriage(flags);
+        setTriagePriority(triage.priority);
+        
+        // Add to context for persistence
+        flags.forEach(flag => {
+          if (!state.redFlags.some(rf => rf.id === flag.id)) {
+            // Will be added via context action if needed
+          }
+        });
+      }
+    }
+  }, [state.voiceData.chiefComplaint]);
 
   const questionHindi = "आपको सबसे ज्यादा परेशानी किस चीज़ की हो रही है और कब से है?";
   const questionEng = "What is bothering you the most right now, and when did it start?";
@@ -29,31 +66,50 @@ export default function VoiceIntake() {
   };
 
   const toggleMic = () => {
-    if (!isRecording) {
-      setIsRecording(true);
-      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        // Speech recognition supported
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
-        recognition.lang = state.language === 'Hindi' ? 'hi-IN' : 'en-IN';
-        recognition.onresult = (event: any) => {
-          const transcript = event.results[0][0].transcript;
-          if (transcript) {
-            updateVoiceData({ chiefComplaint: transcript });
-          }
-          setIsRecording(false);
-        };
-        recognition.onerror = () => setIsRecording(false);
-        recognition.onend = () => setIsRecording(false);
-        recognition.start();
-      } else {
-        // Fallback simulation
-        setTimeout(() => {
-          setIsRecording(false);
-        }, 3000);
-      }
-    } else {
+    if (!isSpeechSupported) {
+      setErrorMessage('आपका ब्राउज़र वॉइस रिकग्निशन सपोर्ट नहीं करता। / Speech recognition not supported. Please type instead.');
+      setShowTypeInput(true);
+      return;
+    }
+
+    if (isRecording) {
+      speechService.stop();
       setIsRecording(false);
+      setInterimTranscript('');
+    } else {
+      setErrorMessage('');
+      setPermissionDenied(false);
+      
+      const success = speechService.start(
+        (result) => {
+          if (result.isFinal) {
+            const finalText = result.transcript.trim();
+            if (finalText) {
+              updateVoiceData({ chiefComplaint: finalText });
+              setInterimTranscript('');
+            }
+          } else {
+            setInterimTranscript(result.transcript);
+          }
+        },
+        (error) => {
+          setIsRecording(false);
+          setInterimTranscript('');
+          setErrorMessage(error.message);
+          
+          if (error.error === 'not-allowed') {
+            setPermissionDenied(true);
+          }
+        },
+        () => {
+          setIsRecording(false);
+          setInterimTranscript('');
+        }
+      );
+
+      if (success) {
+        setIsRecording(true);
+      }
     }
   };
 
@@ -79,7 +135,7 @@ export default function VoiceIntake() {
               <span className="font-display font-bold text-on-surface text-lg leading-tight">
                 Voice Symptom Intake
               </span>
-              <span className="text-xs text-primary font-semibold">CUREX Care Assistant</span>
+              <span className="text-xs text-primary font-semibold">MediKiosk Care Assistant</span>
             </div>
           </div>
           <div className="flex items-center space-x-2">
@@ -124,6 +180,51 @@ export default function VoiceIntake() {
             {state.patient.id}
           </span>
         </div>
+
+        {/* Red Flag Alert Banner */}
+        {detectedRedFlags.length > 0 && (
+          <div className={`rounded-2xl p-5 shadow-lg border-2 animate-pulse ${
+            triagePriority === 'EMERGENCY' 
+              ? 'bg-error/10 border-error' 
+              : triagePriority === 'URGENT'
+              ? 'bg-tertiary/10 border-tertiary'
+              : 'bg-surface-container-low border-outline-variant'
+          }`}>
+            <div className="flex items-start space-x-3">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                triagePriority === 'EMERGENCY' ? 'bg-error/20' : 'bg-tertiary/20'
+              }`}>
+                <span className={`material-symbols-outlined text-2xl ${
+                  triagePriority === 'EMERGENCY' ? 'text-error' : 'text-tertiary'
+                }`}>
+                  {triagePriority === 'EMERGENCY' ? 'emergency' : 'warning'}
+                </span>
+              </div>
+              <div className="flex-1 space-y-2">
+                <div>
+                  <h4 className={`font-bold text-base ${
+                    triagePriority === 'EMERGENCY' ? 'text-error' : 'text-tertiary'
+                  }`}>
+                    {triagePriority === 'EMERGENCY' ? '🚨 EMERGENCY ALERT / आपातकालीन चेतावनी' : '⚠️ URGENT ATTENTION / तत्काल ध्यान'}
+                  </h4>
+                  <p className="text-sm text-on-surface mt-1">
+                    {state.language === 'Hindi' ? detectedRedFlags[0].descriptionHi : detectedRedFlags[0].description}
+                  </p>
+                </div>
+                <div className="bg-surface-container-lowest rounded-xl p-3">
+                  <p className="text-xs font-semibold text-on-surface">
+                    {state.language === 'Hindi' ? detectedRedFlags[0].recommendationHi : detectedRedFlags[0].recommendation}
+                  </p>
+                </div>
+                {detectedRedFlags.length > 1 && (
+                  <p className="text-xs text-on-surface-variant">
+                    +{detectedRedFlags.length - 1} more warning{detectedRedFlags.length > 2 ? 's' : ''} detected
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Doctor Triage Question Card */}
         <div className="bg-surface-container-lowest rounded-2xl p-5 shadow-sm space-y-3 relative overflow-hidden">
@@ -180,9 +281,10 @@ export default function VoiceIntake() {
                 isRecording ? 'bg-error animate-pulse' : 'bg-primary hover:bg-primary-container'
               }`}
               type="button"
+              disabled={permissionDenied && !isSpeechSupported}
             >
               <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                {isRecording ? 'mic_active' : 'mic'}
+                {isRecording ? 'mic' : 'mic'}
               </span>
             </button>
           </div>
@@ -192,8 +294,27 @@ export default function VoiceIntake() {
               {isRecording ? 'Recording Live... बोल रहे हैं' : 'Tap to Speak / बोलने के लिए टैप करें'}
             </h3>
             <p className="text-xs text-on-surface-variant">
-              Speak in your native dialect naturally
+              {isRecording ? 'Listening...' : 'Speak in your native dialect naturally'}
             </p>
+            
+            {/* Error Message Display */}
+            {errorMessage && (
+              <div className="mt-2 p-3 rounded-xl bg-error/10 border border-error/20">
+                <div className="flex items-start space-x-2">
+                  <span className="material-symbols-outlined text-error text-lg mt-0.5">error</span>
+                  <p className="text-sm text-error flex-1">{errorMessage}</p>
+                </div>
+              </div>
+            )}
+            
+            {/* Permission Denied Help */}
+            {permissionDenied && (
+              <div className="mt-2 p-3 rounded-xl bg-surface-container-low">
+                <p className="text-xs text-on-surface-variant">
+                  To enable microphone: Settings → Site Settings → Microphone → Allow
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Mode switch button */}
@@ -242,16 +363,34 @@ export default function VoiceIntake() {
                 value={state.voiceData.chiefComplaint}
                 onChange={(e) => updateVoiceData({ chiefComplaint: e.target.value })}
                 className="w-full p-2 rounded-lg bg-surface-container-lowest text-on-surface text-base focus:outline-none"
-                rows={2}
+                rows={3}
+                placeholder="अपनी समस्या यहाँ लिखें..."
               />
             ) : (
               <>
-                <p className="text-lg font-semibold text-on-surface leading-relaxed">
-                  "{state.voiceData.chiefComplaint}"
-                </p>
-                <p className="text-xs text-on-surface-variant italic">
-                  ({state.voiceData.englishTranslation})
-                </p>
+                {isRecording && interimTranscript && (
+                  <p className="text-base text-on-surface-variant italic animate-pulse">
+                    "{interimTranscript}"
+                  </p>
+                )}
+                {state.voiceData.chiefComplaint ? (
+                  <>
+                    <p className="text-lg font-semibold text-on-surface leading-relaxed">
+                      "{state.voiceData.chiefComplaint}"
+                    </p>
+                    {state.voiceData.englishTranslation && (
+                      <p className="text-xs text-on-surface-variant italic">
+                        ({state.voiceData.englishTranslation})
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-base text-on-surface-variant text-center py-4">
+                    {isRecording
+                      ? 'सुन रहे हैं... / Listening...'
+                      : 'कोई ट्रांसक्रिप्ट नहीं / No transcript yet. Tap microphone to speak.'}
+                  </p>
+                )}
               </>
             )}
           </div>

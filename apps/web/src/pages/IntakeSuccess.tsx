@@ -3,7 +3,12 @@ import { useIntake } from '../context/IntakeContext';
 
 export default function IntakeSuccess() {
   const navigate = useNavigate();
-  const { resetIntake } = useIntake();
+  const { startNewSession } = useIntake();
+
+  const handleNewPatient = () => {
+    startNewSession();
+    navigate('/');
+  };
 
   return (
     <div className="bg-surface font-body text-on-surface flex flex-col min-h-screen items-center justify-center p-4">
@@ -61,14 +66,14 @@ export default function IntakeSuccess() {
           </button>
 
           <button
-            onClick={() => {
-              resetIntake();
-              navigate('/language');
-            }}
-            className="w-full h-12 rounded-xl bg-surface-container text-on-surface font-semibold text-sm hover:bg-surface-container-high transition-all"
+            onClick={handleNewPatient}
+            className="w-full h-12 rounded-xl bg-surface-container text-on-surface font-semibold text-sm hover:bg-surface-container-high transition-all active:scale-95"
             type="button"
           >
-            Start New Patient Intake
+            <span className="flex items-center justify-center space-x-2">
+              <span className="material-symbols-outlined text-lg">person_add</span>
+              <span>नया मरीज / Start New Patient Intake</span>
+            </span>
           </button>
         </div>
       </div>

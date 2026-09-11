@@ -1,0 +1,235 @@
+# MediKiosk API Examples
+# Use with REST Client extension in VS Code or similar HTTP client
+
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+###
+# Health Check
+GET {{baseUrl}}/api/health
+
+###
+# API Root - List all endpoints
+GET {{baseUrl}}/api
+
+###
+# =========================================
+# AUTHENTICATION
+# =========================================
+
+###
+# Login (Demo Mode)
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "doctor@medikiosk.demo",
+  "password": "demo123"
+}
+
+###
+# =========================================
+# PATIENTS
+# =========================================
+
+###
+# Get all patients
+GET {{baseUrl}}/api/patients
+
+###
+# Get specific patient
+GET {{baseUrl}}/api/patients/MK-10428
+
+###
+# =========================================
+# ENCOUNTERS
+# =========================================
+
+###
+# Get all encounters
+GET {{baseUrl}}/api/encounters
+
+###
+# Create new encounter
+POST {{baseUrl}}/api/encounters
+Content-Type: {{contentType}}
+
+{
+  "encounterId": "ENC-170432",
+  "patientId": "MK-10428",
+  "patientName": "Ramesh Kumar Sharma",
+  "language": "Hindi",
+  "mode": "voice",
+  "chiefComplaint": "सीने में दर्द और भारीपन",
+  "painSeverity": 6,
+  "documents": [],
+  "status": "IN_QUEUE"
+}
+
+###
+# =========================================
+# CLINICAL INTELLIGENCE
+# =========================================
+
+###
+# Extract symptoms from complaint (Chest Pain)
+POST {{baseUrl}}/api/clinical/extract-symptoms
+Content-Type: {{contentType}}
+
+{
+  "complaint": "कल शाम से सीने में भारीपन और दर्द है, सांस लेने में भी थोड़ी परेशानी"
+}
+
+###
+# Extract symptoms (Fever)
+POST {{baseUrl}}/api/clinical/extract-symptoms
+Content-Type: {{contentType}}
+
+{
+  "complaint": "3 दिन से बुखार है और शरीर में दर्द"
+}
+
+###
+# Extract symptoms (Abdominal Pain)
+POST {{baseUrl}}/api/clinical/extract-symptoms
+Content-Type: {{contentType}}
+
+{
+  "complaint": "पेट में दर्द है और उल्टी हो रही है"
+}
+
+###
+# Get next questions for Chest Pain
+POST {{baseUrl}}/api/clinical/next-questions
+Content-Type: {{contentType}}
+
+{
+  "category": "CHEST_PAIN",
+  "answeredQuestions": []
+}
+
+###
+# Get next questions with answered filter
+POST {{baseUrl}}/api/clinical/next-questions
+Content-Type: {{contentType}}
+
+{
+  "category": "CHEST_PAIN",
+  "answeredQuestions": ["chest_pain_location", "chest_pain_duration"]
+}
+
+###
+# Detect red flags - Emergency (Cardiac)
+POST {{baseUrl}}/api/clinical/detect-red-flags
+Content-Type: {{contentType}}
+
+{
+  "chiefComplaint": "सीने में दर्द और सांस लेने में परेशानी",
+  "symptoms": ["chest pain", "breathing difficulty"],
+  "clinicalAnswers": {
+    "chest_pain_breathing": "yes",
+    "chest_pain_sweating": "yes"
+  }
+}
+
+###
+# Detect red flags - Urgent (High Fever)
+POST {{baseUrl}}/api/clinical/detect-red-flags
+Content-Type: {{contentType}}
+
+{
+  "chiefComplaint": "तेज बुखार है",
+  "symptoms": ["fever"],
+  "clinicalAnswers": {
+    "fever_temperature": "104"
+  }
+}
+
+###
+# Detect red flags - Routine (No emergency)
+POST {{baseUrl}}/api/clinical/detect-red-flags
+Content-Type: {{contentType}}
+
+{
+  "chiefComplaint": "सिरदर्द है",
+  "symptoms": ["headache"],
+  "clinicalAnswers": {}
+}
+
+###
+# =========================================
+# OCR & DOCUMENT PROCESSING
+# =========================================
+
+###
+# Process OCR - Prescription
+POST {{baseUrl}}/api/ocr/process
+Content-Type: {{contentType}}
+
+{
+  "documentType": "Prescription",
+  "fileName": "prescription.jpg"
+}
+
+###
+# Process OCR - Lab Report
+POST {{baseUrl}}/api/ocr/process
+Content-Type: {{contentType}}
+
+{
+  "documentType": "Lab Report",
+  "fileName": "lab_report.pdf"
+}
+
+###
+# Upload Document (requires multipart/form-data - use tool like Postman or curl)
+# POST {{baseUrl}}/api/documents/upload
+# Content-Type: multipart/form-data
+# Body: form-data with 'document' file field and 'documentType' text field
+
+###
+# =========================================
+# TESTING EDGE CASES
+# =========================================
+
+###
+# Test - Missing required field
+POST {{baseUrl}}/api/clinical/extract-symptoms
+Content-Type: {{contentType}}
+
+{
+  "wrongField": "test"
+}
+
+###
+# Test - Invalid category
+POST {{baseUrl}}/api/clinical/next-questions
+Content-Type: {{contentType}}
+
+{
+  "category": "INVALID_CATEGORY",
+  "answeredQuestions": []
+}
+
+###
+# =========================================
+# CURL EXAMPLES
+# =========================================
+
+# Health Check
+# curl http://localhost:3000/api/health
+
+# Extract Symptoms
+# curl -X POST http://localhost:3000/api/clinical/extract-symptoms \
+#   -H "Content-Type: application/json" \
+#   -d '{"complaint":"सीने में दर्द"}'
+
+# Detect Red Flags
+# curl -X POST http://localhost:3000/api/clinical/detect-red-flags \
+#   -H "Content-Type: application/json" \
+#   -d '{"chiefComplaint":"सीने में दर्द और सांस लेने में परेशानी","symptoms":[],"clinicalAnswers":{}}'
+
+# Upload Document (multipart)
+# curl -X POST http://localhost:3000/api/documents/upload \
+#   -F "document=@/path/to/prescription.jpg" \
+#   -F "documentType=Prescription"

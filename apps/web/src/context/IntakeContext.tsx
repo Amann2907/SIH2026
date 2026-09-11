@@ -9,9 +9,28 @@ export interface ExtractedDocument {
   name: string;
   extractedAt: string;
   ocrConfidence: number;
-  diagnosis: string;
-  medications: string[];
-  labValue: { name: string; value: string; status: 'Normal' | 'High' | 'Low' };
+  diagnosis?: string;
+  medications?: string[];
+  labValue?: { name: string; value: string; status: 'Normal' | 'High' | 'Low' };
+  rawText?: string;
+}
+
+export interface ClinicalQuestion {
+  id: string;
+  question: string;
+  questionHindi: string;
+  answer?: string;
+  answeredAt?: string;
+  category: string;
+}
+
+export interface RedFlag {
+  id: string;
+  name: string;
+  severity: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
+  description: string;
+  triggeredAt: string;
+  acknowledged: boolean;
 }
 
 export interface IntakeState {
@@ -30,7 +49,11 @@ export interface IntakeState {
     painSeverity: number;
     onset: string;
     calculatedSeverity: string;
+    symptoms: string[];
+    associatedSymptoms: string[];
   };
+  clinicalQuestions: ClinicalQuestion[];
+  redFlags: RedFlag[];
   documentData: {
     category: string;
     documents: ExtractedDocument[];
@@ -38,60 +61,62 @@ export interface IntakeState {
   summaryConfirmed: boolean;
   encounterId: string | null;
   status: 'draft' | 'submitted' | 'verified';
+  sessionStarted: string | null;
 }
 
 interface IntakeContextType {
   state: IntakeState;
   setLanguage: (lang: Language) => void;
   setMode: (mode: Mode) => void;
+  setPatientData: (data: Partial<IntakeState['patient']>) => void;
   updateVoiceData: (data: Partial<IntakeState['voiceData']>) => void;
+  addClinicalQuestion: (question: ClinicalQuestion) => void;
+  answerQuestion: (questionId: string, answer: string) => void;
+  addRedFlag: (redFlag: RedFlag) => void;
+  acknowledgeRedFlag: (redFlagId: string) => void;
   updateDocumentData: (category: string, docs?: ExtractedDocument[]) => void;
+  addDocument: (doc: ExtractedDocument) => void;
   submitEncounter: () => Promise<string>;
   resetIntake: () => void;
+  startNewSession: () => void;
 }
 
 const defaultState: IntakeState = {
   language: 'Hindi',
   mode: 'voice',
   patient: {
-    id: 'CUREX-10428',
-    name: 'Ramesh Kumar Sharma',
-    age: 54,
-    gender: 'M',
-    abhaId: '91-4821-9032-11',
+    id: '',
+    name: '',
+    age: 0,
+    gender: '',
+    abhaId: '',
   },
   voiceData: {
-    chiefComplaint: 'कल शाम से सीने में भारीपन और हल्का दर्द महसूस हो रहा है।',
-    englishTranslation: 'Chest heaviness and mild pain since yesterday evening.',
-    painSeverity: 6,
-    onset: '~24 hrs (Yesterday Evening)',
-    calculatedSeverity: '6 / 10 (Moderate to Severe)',
+    chiefComplaint: '',
+    englishTranslation: '',
+    painSeverity: 0,
+    onset: '',
+    calculatedSeverity: '',
+    symptoms: [],
+    associatedSymptoms: [],
   },
+  clinicalQuestions: [],
+  redFlags: [],
   documentData: {
-    category: 'Prescription (पर्ची)',
-    documents: [
-      {
-        id: 'doc-1',
-        type: 'Prescription',
-        name: 'Dr. Ramesh Sharma Rx',
-        extractedAt: 'Aug 2024',
-        ocrConfidence: 98,
-        diagnosis: 'Type 2 Diabetes Mellitus',
-        medications: ['Tab Metformin 500mg (OD)', 'Ecosprin 75mg'],
-        labValue: { name: 'Fasting Blood Sugar', value: '168 mg/dL', status: 'High' },
-      },
-    ],
+    category: '',
+    documents: [],
   },
   summaryConfirmed: false,
   encounterId: null,
   status: 'draft',
+  sessionStarted: null,
 };
 
 const IntakeContext = createContext<IntakeContextType | undefined>(undefined);
 
 export const IntakeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, setState] = useState<IntakeState>(() => {
-    const saved = localStorage.getItem('curex_intake_state');
+    const saved = localStorage.getItem('medikiosk_intake_state');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -103,8 +128,15 @@ export const IntakeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   });
 
   useEffect(() => {
-    localStorage.setItem('curex_intake_state', JSON.stringify(state));
+    localStorage.setItem('medikiosk_intake_state', JSON.stringify(state));
   }, [state]);
+
+  const setPatientData = (data: Partial<IntakeState['patient']>) => {
+    setState((prev) => ({
+      ...prev,
+      patient: { ...prev.patient, ...data },
+    }));
+  };
 
   const setLanguage = (language: Language) => {
     setState((prev) => ({ ...prev, language }));
@@ -121,6 +153,38 @@ export const IntakeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }));
   };
 
+  const addClinicalQuestion = (question: ClinicalQuestion) => {
+    setState((prev) => ({
+      ...prev,
+      clinicalQuestions: [...prev.clinicalQuestions, question],
+    }));
+  };
+
+  const answerQuestion = (questionId: string, answer: string) => {
+    setState((prev) => ({
+      ...prev,
+      clinicalQuestions: prev.clinicalQuestions.map((q) =>
+        q.id === questionId ? { ...q, answer, answeredAt: new Date().toISOString() } : q
+      ),
+    }));
+  };
+
+  const addRedFlag = (redFlag: RedFlag) => {
+    setState((prev) => ({
+      ...prev,
+      redFlags: [...prev.redFlags, redFlag],
+    }));
+  };
+
+  const acknowledgeRedFlag = (redFlagId: string) => {
+    setState((prev) => ({
+      ...prev,
+      redFlags: prev.redFlags.map((rf) =>
+        rf.id === redFlagId ? { ...rf, acknowledged: true } : rf
+      ),
+    }));
+  };
+
   const updateDocumentData = (category: string, docs?: ExtractedDocument[]) => {
     setState((prev) => ({
       ...prev,
@@ -129,6 +193,26 @@ export const IntakeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         documents: docs || prev.documentData.documents,
       },
     }));
+  };
+
+  const addDocument = (doc: ExtractedDocument) => {
+    setState((prev) => ({
+      ...prev,
+      documentData: {
+        ...prev.documentData,
+        documents: [...prev.documentData.documents, doc],
+      },
+    }));
+  };
+
+  const startNewSession = () => {
+    const newState = {
+      ...defaultState,
+      language: state.language, // Preserve language preference
+      sessionStarted: new Date().toISOString(),
+    };
+    setState(newState);
+    localStorage.setItem('medikiosk_intake_state', JSON.stringify(newState));
   };
 
   const submitEncounter = async (): Promise<string> => {
@@ -164,8 +248,9 @@ export const IntakeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   const resetIntake = () => {
-    setState(defaultState);
-    localStorage.removeItem('curex_intake_state');
+    const newState = { ...defaultState, sessionStarted: null };
+    setState(newState);
+    localStorage.removeItem('medikiosk_intake_state');
   };
 
   return (
@@ -174,10 +259,17 @@ export const IntakeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         state,
         setLanguage,
         setMode,
+        setPatientData,
         updateVoiceData,
+        addClinicalQuestion,
+        answerQuestion,
+        addRedFlag,
+        acknowledgeRedFlag,
         updateDocumentData,
+        addDocument,
         submitEncounter,
         resetIntake,
+        startNewSession,
       }}
     >
       {children}

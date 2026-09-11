@@ -1,11 +1,11 @@
-# CUREX - Clinical Intake Platform
+# MediKiosk - Clinical Intake Platform
 
 [![Status](https://img.shields.io/badge/status-in%20development-yellow)](https://github.com)
 [![Phase](https://img.shields.io/badge/phase-analysis%20complete-blue)](./IMPLEMENTATION_PLAN.md)
 
 **"Smarter Clinical Intake. Better Prepared Care."**
 
-CUREX is an AI-assisted clinical intake and medical-document digitization platform designed for high-volume Indian and AYUSH hospitals. The platform enables patients to complete their clinical history before meeting the doctor through multilingual voice/touch interfaces, document scanning with OCR, and intelligent red-flag detection.
+MediKiosk is an AI-assisted clinical intake and medical-document digitization platform designed for high-volume Indian and AYUSH hospitals. The platform enables patients to complete their clinical history before meeting the doctor through multilingual voice/touch interfaces, document scanning with OCR, and intelligent red-flag detection.
 
 ## 🚀 Getting Started
 
@@ -21,7 +21,7 @@ CUREX is an AI-assisted clinical intake and medical-document digitization platfo
 
 ```bash
 git clone <repository-url>
-cd curex_clinical_intake_platform
+cd medikiosk_clinical_intake_platform
 npm install
 ```
 
@@ -75,9 +75,9 @@ This starts:
 
 ### Demo Credentials
 
-- **Admin**: admin@curex.demo / admin123
-- **Doctor**: doctor@curex.demo / doctor123  
-- **Patient**: patient@curex.demo / patient123
+- **Admin**: admin@medikiosk.demo / admin123
+- **Doctor**: doctor@medikiosk.demo / doctor123  
+- **Patient**: patient@medikiosk.demo / patient123
 
 ### Current Demo Features
 
@@ -139,7 +139,7 @@ Hospital intake processes in India are often:
 
 ### The Solution
 
-CUREX transforms clinical intake through:
+MediKiosk transforms clinical intake through:
 - **Multilingual Voice & Touch Interfaces** - Support for 8+ Indian languages
 - **AI-Powered Clinical History Capture** - Intelligent, adaptive questioning
 - **Document Digitization** - OCR extraction from prescriptions and lab reports
@@ -470,7 +470,7 @@ Do NOT create public GitHub issues for security vulnerabilities.
 
 ### Critical Principle
 
-**CUREX IS NOT AN AI DOCTOR**
+**MediKiosk IS NOT AN AI DOCTOR**
 
 - ❌ Does NOT make autonomous diagnoses
 - ❌ Does NOT provide medical advice
@@ -616,11 +616,11 @@ We welcome contributions from the community!
 
 This project is proprietary software. All rights reserved.
 
-Copyright (c) 2026 CUREX Health Technologies
+Copyright (c) 2026 MediKiosk Health Technologies
 
 Unauthorized copying, distribution, or use of this software is strictly prohibited.
 
-For licensing inquiries, contact: licensing@curex.health
+For licensing inquiries, contact: licensing@medikiosk.health
 
 ---
 

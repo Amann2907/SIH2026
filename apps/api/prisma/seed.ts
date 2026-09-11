@@ -12,7 +12,7 @@ async function main() {
     update: {},
     create: {
       id: 'hospital-1',
-      name: 'CUREX Demo Hospital',
+      name: 'MediKiosk Demo Hospital',
       type: 'MULTISPECIALTY',
       address: 'Demo Address',
       city: 'Mumbai',
@@ -26,11 +26,11 @@ async function main() {
   // Create Admin User
   const adminPassword = await bcrypt.hash('admin123', 10);
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@curex.demo' },
+    where: { email: 'admin@medikiosk.demo' },
     update: {},
     create: {
       id: 'user-admin-1',
-      email: 'admin@curex.demo',
+      email: 'admin@medikiosk.demo',
       password: adminPassword,
       role: 'ADMIN',
     },
@@ -47,16 +47,16 @@ async function main() {
       role: 'SYSTEM_ADMIN',
     },
   });
-  console.log('✅ Admin user created: admin@curex.demo / admin123');
+  console.log('✅ Admin user created: admin@medikiosk.demo / admin123');
 
   // Create Doctor User
   const doctorPassword = await bcrypt.hash('doctor123', 10);
   const doctorUser = await prisma.user.upsert({
-    where: { email: 'doctor@curex.demo' },
+    where: { email: 'doctor@medikiosk.demo' },
     update: {},
     create: {
       id: 'user-doctor-1',
-      email: 'doctor@curex.demo',
+      email: 'doctor@medikiosk.demo',
       password: doctorPassword,
       role: 'DOCTOR',
     },
@@ -75,16 +75,16 @@ async function main() {
       licenseNumber: 'DOC-2024-001',
     },
   });
-  console.log('✅ Doctor user created: doctor@curex.demo / doctor123');
+  console.log('✅ Doctor user created: doctor@medikiosk.demo / doctor123');
 
   // Create Patient User
   const patientPassword = await bcrypt.hash('patient123', 10);
   const patientUser = await prisma.user.upsert({
-    where: { email: 'patient@curex.demo' },
+    where: { email: 'patient@medikiosk.demo' },
     update: {},
     create: {
       id: 'user-patient-1',
-      email: 'patient@curex.demo',
+      email: 'patient@medikiosk.demo',
       password: patientPassword,
       role: 'PATIENT',
     },
@@ -105,7 +105,7 @@ async function main() {
       bloodGroup: 'O+',
     },
   });
-  console.log('✅ Patient user created: patient@curex.demo / patient123');
+  console.log('✅ Patient user created: patient@medikiosk.demo / patient123');
 
   // Create Medical History for patient
   await prisma.medicalHistory.upsert({
@@ -203,9 +203,9 @@ async function main() {
 
   console.log('\n🎉 Database seeding completed successfully!');
   console.log('\n📋 Demo Credentials:');
-  console.log('   Admin:   admin@curex.demo / admin123');
-  console.log('   Doctor:  doctor@curex.demo / doctor123');
-  console.log('   Patient: patient@curex.demo / patient123');
+  console.log('   Admin:   admin@medikiosk.demo / admin123');
+  console.log('   Doctor:  doctor@medikiosk.demo / doctor123');
+  console.log('   Patient: patient@medikiosk.demo / patient123');
 }
 
 main()
